@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MiniProject</string>
+    <string name="we_found_nothing">We found nothing</string>
+    <string name="news">News</string>
+    <string name="saved">Saved</string>
+    <string name="favorite">Favorite</string>
+    <string name="search">Search</string>
+</resources>
