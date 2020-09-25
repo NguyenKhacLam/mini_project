@@ -5,6 +5,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -26,8 +27,9 @@ public class NewDetailsActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         webView.setWebViewClient(new WebViewClient());
+        webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl(extras.getString("url"));
-
+//        webView.loadUrl("file:///android_asset/index.html");
     }
 
     @Override

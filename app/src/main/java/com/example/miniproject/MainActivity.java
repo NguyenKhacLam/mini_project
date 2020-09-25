@@ -65,9 +65,33 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),0);
         viewPagerAdapter.addFragment(newsFragment, "news");
-        viewPagerAdapter.addFragment(savedFragment, "saved");
         viewPagerAdapter.addFragment(favoriteFragment, "favorite");
+        viewPagerAdapter.addFragment(savedFragment, "saved");
         viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 1:
+                        favoriteFragment.loadData();
+                        break;
+                    case 2:
+                        savedFragment.loadData();
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
 //    public void showFragments(Fragment fmShow) {

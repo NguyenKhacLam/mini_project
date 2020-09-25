@@ -1,8 +1,10 @@
 package com.example.miniproject;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +25,7 @@ import com.example.miniproject.adapters.NewsAdapter;
 import com.example.miniproject.api.ApiBuilder;
 import com.example.miniproject.modals.News;
 import com.example.miniproject.modals.NewsResponse;
+import com.example.miniproject.room.Dao.AppDatabase;
 
 import java.util.ArrayList;
 
@@ -30,11 +33,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NewsFragment extends Fragment implements Callback<NewsResponse>, NewsAdapter.NewsListener, PopupMenu.OnMenuItemClickListener {
+public class NewsFragment extends Fragment implements Callback<NewsResponse>, NewsAdapter.NewsListener{
     private final String TAG = "NewsFragment";
     private RecyclerView recyclerView;
     private TextView tv_nothing;
     private ProgressBar progressBar;
+
+    private final String[] PERMISSIONS = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    private FileManager fileManager = new FileManager();
 
     private NewsAdapter newsAdapter;
 
@@ -84,9 +94,6 @@ public class NewsFragment extends Fragment implements Callback<NewsResponse>, Ne
 
     @Override
     public void onClick(News news) {
-//        MainActivity activity = (MainActivity) getActivity();
-//        activity.showFragments(activity.getNewsDetailFragment());
-//        activity.getNewsDetailFragment().setUrl(news.getUrl());
         Intent intent = new Intent(getContext(), NewDetailsActivity.class);
         intent.putExtra("url", news.getUrl());
         startActivity(intent);
@@ -97,21 +104,38 @@ public class NewsFragment extends Fragment implements Callback<NewsResponse>, Ne
         PopupMenu popupMenu = new PopupMenu(getContext(), v);
         popupMenu.inflate(R.menu.popup_item);
         Menu menu = popupMenu.getMenu();
-        popupMenu.setOnMenuItemClickListener(this);
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.favoriteItem:
+                        news.setSaved(false);
+                        AppDatabase.getInstance(getContext()).getAppDao().insert(news);
+                        Toast.makeText(getContext(), "Done", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.saveItem:
+                        news.setSaved(true);
+                        String path =  Environment.getExternalStorageDirectory().getPath() + "/save/" + System.currentTimeMillis() + ".html";
+                        fileManager.download(news.getUrl(), path, new FileManager.FileDownloadCallBack() {
+                            @Override
+                            public void onSuccess(String path) {
+                                news.setPathFile(path);
+                                AppDatabase.getInstance(getContext()).getAppDao().insert(news);
+                                getActivity().runOnUiThread(() ->  Toast.makeText(getActivity(), "Thêm thành công", Toast.LENGTH_SHORT).show());
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e(TAG, e.getMessage());
+                            }
+                        });
+                        break;
+                }
+                return false;
+            }
+        });
 
         popupMenu.show();
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.favoriteItem:
-                Toast.makeText(getContext(), "Favorite", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.saveItem:
-                Toast.makeText(getContext(), "Save", Toast.LENGTH_SHORT).show();
-                break;
-        }
-        return true;
     }
 }

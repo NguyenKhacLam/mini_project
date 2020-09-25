@@ -21,6 +21,7 @@
 
     <WebView
         android:id="@+id/newsWeb"
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_width="409dp"
         android:layout_height="729dp"
         app:layout_constraintBottom_toBottomOf="parent"
