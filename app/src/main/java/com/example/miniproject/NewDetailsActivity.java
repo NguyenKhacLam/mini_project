@@ -28,6 +28,7 @@ public class NewDetailsActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         webView.setWebViewClient(new WebViewClient());
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setAllowFileAccess(true);
         webView.loadUrl(extras.getString("url"));
 //        webView.loadUrl("file:///android_asset/index.html");
     }
